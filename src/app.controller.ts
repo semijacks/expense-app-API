@@ -1,5 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+} from '@nestjs/common';
 import { data, ReportType } from './data';
+import { v4 as uuid } from 'uuid';
 
 @Controller('report/:type')
 export class AppController {
@@ -20,8 +29,22 @@ export class AppController {
   }
 
   @Post()
-  createReport() {
-    return 'created';
+  createReport(
+    @Body() { amount, source }: { amount: number; source: string },
+    @Param('type') type: string,
+  ) {
+    const reportType =
+      type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
+    const newReport = {
+      id: uuid(),
+      source: source,
+      amount: amount,
+      created_at: new Date(),
+      updated_at: new Date(),
+      type: reportType,
+    };
+    data.report.push(newReport);
+    return data.report.filter((report) => report.id === newReport.id);
   }
 
   @Put(':id')
